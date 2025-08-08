@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Flipkart Bot - Status Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .status-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .status-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-card .icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .status-value {
+            font-weight: bold;
+            color: #2196F3;
+        }
+        
+        .status-online {
+            color: #4CAF50;
+        }
+        
+        .status-warning {
+            color: #FF9800;
+        }
+        
+        .status-error {
+            color: #F44336;
+        }
+        
+        .commands-section {
+            background: #f0f7ff;
+            padding: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .command-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .command-card h4 {
+            color: #2196F3;
+            margin-bottom: 8px;
+        }
+        
+        .command-card code {
+            background: #f5f5f5;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #333;
+        }
+        
+        .footer {
+            background: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .refresh-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            transition: background 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            background: #1976D2;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .status-grid {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Telegram Flipkart Bot</h1>
+            <p>24/7 Shopping Assistant & Product Search Bot</p>
+        </div>
+        
+        <div class="status-grid">
+            <div class="status-card">
+                <h3><span class="icon">🤖</span>Bot Status</h3>
+                <div class="status-item">
+                    <span>Status:</span>
+                    <span class="status-value status-online" id="bot-status">Online</span>
+                </div>
+                <div class="status-item">
+                    <span>Username:</span>
+                    <span class="status-value" id="bot-username">Loading...</span>
+                </div>
+                <div class="status-item">
+                    <span>Response Time:</span>
+                    <span class="status-value" id="response-time">Loading...</span>
+                </div>
+                <div class="status-item">
+                    <span>Last Updated:</span>
+                    <span class="status-value" id="last-updated">Loading...</span>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <h3><span class="icon">⚡</span>System Status</h3>
+                <div class="status-item">
+                    <span>Server:</span>
+                    <span class="status-value status-online" id="server-status">Running</span>
+                </div>
+                <div class="status-item">
+                    <span>Port:</span>
+                    <span class="status-value">5000</span>
+                </div>
+                <div class="status-item">
+                    <span>Uptime:</span>
+                    <span class="status-value" id="uptime">Loading...</span>
+                </div>
+                <div class="status-item">
+                    <span>Memory Usage:</span>
+                    <span class="status-value" id="memory-usage">Loading...</span>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <h3><span class="icon">🛍️</span>Flipkart Service</h3>
+                <div class="status-item">
+                    <span>Search Service:</span>
+                    <span class="status-value status-online" id="flipkart-status">Demo Mode</span>
+                </div>
+                <div class="status-item">
+                    <span>Cache Size:</span>
+                    <span class="status-value" id="cache-size">Loading...</span>
+                </div>
+                <div class="status-item">
+                    <span>API Status:</span>
+                    <span class="status-value status-warning" id="api-status">Sample Data</span>
+                </div>
+                <div class="status-item">
+                    <span>Products Available:</span>
+                    <span class="status-value">25+ per search</span>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <h3><span class="icon">🌐</span>Webhook Config</h3>
+                <div class="status-item">
+                    <span>Mode:</span>
+                    <span class="status-value" id="webhook-mode">Polling</span>
+                </div>
+                <div class="status-item">
+                    <span>URL:</span>
+                    <span class="status-value" id="webhook-url">Auto-configured</span>
+                </div>
+                <div class="status-item">
+                    <span>SSL:</span>
+                    <span class="status-value status-online">Enabled</span>
+                </div>
+                <div class="status-item">
+                    <span>Deploy Ready:</span>
+                    <span class="status-value status-online">Yes</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="commands-section">
+            <h2 style="text-align: center; color: #333; margin-bottom: 10px;">🎯 Bot Commands</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">Available commands for users on Telegram</p>
+            
+            <div class="commands-grid">
+                <div class="command-card">
+                    <h4>🏠 Start Bot</h4>
+                    <code>/start</code>
+                    <p>Welcome message with interactive menu</p>
+                </div>
+                
+                <div class="command-card">
+                    <h4>🔍 Search Products</h4>
+                    <code>/search smartphone</code>
+                    <p>Search any product with pagination (25 results)</p>
+                </div>
+                
+                <div class="command-card">
+                    <h4>🎯 View Deals</h4>
+                    <code>/deals</code>
+                    <p>Get latest deals and special offers</p>
+                </div>
+                
+                <div class="command-card">
+                    <h4>💡 Get Help</h4>
+                    <code>/help</code>
+                    <p>Show all commands and usage tips</p>
+                </div>
+                
+                <div class="command-card">
+                    <h4>📊 Bot Status</h4>
+                    <code>/status</code>
+                    <p>Check bot health and performance</p>
+                </div>
+                
+                <div class="command-card">
+                    <h4>🎮 Interactive Features</h4>
+                    <code>Buttons & Menus</code>
+                    <p>Navigate with inline keyboards</p>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="refresh-btn" onclick="refreshStatus()">🔄 Refresh Status</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>🚀 Telegram Flipkart Bot - Built for 24/7 Shopping Assistance</p>
+            <p style="margin-top: 10px; opacity: 0.8;">Ready for deployment • Webhook support • Docker compatible</p>
+        </div>
+    </div>
+    
+    <script>
+        async function loadStatus() {
+            try {
+                const response = await fetch('/bot-status');
+                const data = await response.json();
+                
+                if (data.bot) {
+                    document.getElementById('bot-username').textContent = '@' + data.bot.username;
+                }
+                
+                document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+                
+                // Load health info
+                const healthResponse = await fetch('/health');
+                const healthData = await healthResponse.json();
+                
+                const uptimeHours = Math.floor(healthData.uptime / 3600);
+                const uptimeMinutes = Math.floor((healthData.uptime % 3600) / 60);
+                document.getElementById('uptime').textContent = `${uptimeHours}h ${uptimeMinutes}m`;
+                
+                const memoryMB = Math.round(healthData.memory.heapUsed / 1024 / 1024);
+                document.getElementById('memory-usage').textContent = `${memoryMB} MB`;
+                
+            } catch (error) {
+                console.error('Error loading status:', error);
+                document.getElementById('bot-status').textContent = 'Error';
+                document.getElementById('bot-status').className = 'status-value status-error';
+            }
+        }
+        
+        function refreshStatus() {
+            loadStatus();
+            document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+        }
+        
+        // Load status on page load
+        loadStatus();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadStatus, 30000);
+    </script>
+</body>
+</html>
